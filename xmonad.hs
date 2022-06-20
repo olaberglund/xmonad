@@ -72,12 +72,13 @@ myKeys =
     -- layout
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
-    ((modm, xK_n), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
+    ((modm, xK_period), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
 
     -- specific programs
     ((modm, xK_space), spawn "brave"),
     ((modm, xK_f), spawn "flameshot gui"),
     ((modm .|. shiftMask, xK_b), spawn "blueman-manager"),
+    ((modm, xK_n), spawn "networkmanager_dmenu"), -- %! Rotate through the available layout algorithms
 
     -- music
     ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 5"), -- decrease master volume
