@@ -1,6 +1,6 @@
 Config { overrideRedirect = True
-       , font     = "xft:iosevka:size=14:antialias=true"
-       , additionalFonts = ["xft:Font Awesome 6 Free Solid:style=solid:size=12", "xft:Iosevka Nerd Font:size=16"]
+       , font     = "xft:iosevka:size=11:antialias=true"
+       , additionalFonts = ["xft:Font Awesome 6 Free Solid:style=solid:size=9", "xft:Iosevka Nerd Font:size=13"]
        , bgColor  = "#333" -- "#2e585e"
        , alpha    = 100
        , fgColor  = "#f8f8f2"
