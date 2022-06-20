@@ -84,6 +84,10 @@ myKeys =
     ((0, 0x1008FF16), spawn "playerctl previous"), -- increase music volume
     ((0, 0x1008FF17), spawn "playerctl next"), -- increase music volume
 
+    -- brightness
+    ((0, 0x1008FF02), spawn "xbacklight -inc 10"),
+    ((0, 0x1008FF03), spawn "xbacklight -dec 10"),
+
     -- windows
     ((modm .|. controlMask, xK_q), killAll),
     ((modm .|. shiftMask, xK_s), sinkAll),
