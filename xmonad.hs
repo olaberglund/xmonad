@@ -72,7 +72,7 @@ myKeys =
     -- layout
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
-    ((modm, xK_period), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
+    ((modm, xK_v), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
 
     -- specific programs
     ((modm, xK_space), spawn "brave"),
