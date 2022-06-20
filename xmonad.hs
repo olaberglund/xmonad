@@ -68,6 +68,7 @@ myKeys =
     ((modm, xK_q), kill), -- %! Close the focused window
     ((modm .|. shiftMask, xK_q), recomp),
     ((modm, xK_w), dwmpromote),
+
     -- layout
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
@@ -76,6 +77,8 @@ myKeys =
     -- specific programs
     ((modm, xK_space), spawn "brave"),
     ((modm, xK_f), spawn "flameshot gui"),
+    ((modm .|. shiftMask, xK_b), spawn "blueman-manager"),
+
     -- music
     ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 5"), -- decrease master volume
     ((0, 0x1008FF12), spawn "pamixer -t"), -- mute music; 0 to tap mult. media key w/o super
@@ -91,6 +94,7 @@ myKeys =
     -- windows
     ((modm .|. controlMask, xK_q), killAll),
     ((modm .|. shiftMask, xK_s), sinkAll),
+
     -- redshift
     ((modm, xK_KP_Insert), spawn "rs 0"),
     ((modm, xK_KP_End), spawn "rs 1"),
@@ -98,9 +102,11 @@ myKeys =
     ((modm, xK_KP_Next), spawn "rs 3"),
     ((modm, xK_KP_Left), spawn "rs 4"),
     ((modm, xK_KP_Begin), spawn "rs 5"),
+
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
+
     -- scratchpads
     ((modm, xK_section), namedScratchpadAction scratchpads "terminal"),
     ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
