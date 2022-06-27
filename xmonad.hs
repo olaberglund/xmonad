@@ -72,7 +72,7 @@ myKeys =
     -- layout
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
-    ((modm, xK_v), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
+    --((modm, xK_v), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
 
     -- specific programs
     ((modm, xK_space), spawn "brave"),
@@ -89,8 +89,8 @@ myKeys =
     ((0, 0x1008FF17), spawn "playerctl next"), -- increase music volume
 
     -- brightness
-    ((0, 0x1008FF02), spawn "xbacklight -inc 10"),
-    ((0, 0x1008FF03), spawn "xbacklight -dec 10"),
+    ((0, 0x1008FF02), spawn "xbacklight -inc 5"),
+    ((0, 0x1008FF03), spawn "xbacklight -dec 1"),
 
     -- windows
     ((modm .|. controlMask, xK_q), killAll),
