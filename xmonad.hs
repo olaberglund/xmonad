@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards #-}
 
+import XMonad.Actions.CycleWS
 import Data.Functor
 import Data.Semigroup
 import XMonad
@@ -107,6 +108,7 @@ myKeys =
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
+    ((modm, xK_Tab), toggleWS),
 
     -- scratchpads
     ((modm, xK_section), namedScratchpadAction scratchpads "terminal"),
