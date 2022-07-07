@@ -4,6 +4,7 @@
 import Data.Functor
 import Data.Semigroup
 import XMonad
+import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
 import XMonad.Actions.FindEmptyWorkspace
 import XMonad.Actions.WithAll
@@ -97,6 +98,7 @@ myKeys =
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
+    ((modm, xK_Tab), toggleWS),
     -- scratchpads
     ((modm, xK_section), namedScratchpadAction scratchpads "terminal"),
     ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
