@@ -167,6 +167,7 @@ myXmobarPP =
     matchIcon :: String -> String
     matchIcon s
       | "NVIM" `isInfixOf` s = "<fn=2>\xe7c5</fn>  " ++ xmobarRaw (shorten 20 $ takeWhile (/= '(') s)
+      | "macs" `isInfixOf` s = "<fn=2>\xf135</fn>  " ++ xmobarRaw (shorten 20 $ takeWhile (/= '(') s)
       | "YouTube" `isInfixOf` s = "<fn=2>\xf16a</fn>  " ++ xmobarRaw (shorten 20 s)
       | "Messenger" `isInfixOf` s = "<fn=2>\xf70d</fn>  " ++ s
       | "Facebook" `isInfixOf` s = "<fn=2>\xf09a</fn>  " ++ xmobarRaw (shorten 20 s)
