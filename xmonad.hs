@@ -27,6 +27,10 @@ import XMonad.Util.NamedScratchpad
 modm :: KeyMask
 modm = mod4Mask
 
+corner1 = 0xa7
+
+corner2 = 0x60
+
 myWorkspaces :: [String]
 myWorkspaces = ["1", "2", "3", "4", "5", "6"] -- keep at an even number < 9
 
@@ -74,6 +78,9 @@ myKeys =
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
     ((modm, xK_n), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
 
+    -- key layout
+    ((modm, xK_t), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us"), -- decrease master volume
+
     -- specific programs
     ((modm, xK_space), spawn "brave"),
     ((modm, xK_f), spawn "flameshot gui"),
@@ -100,7 +107,8 @@ myKeys =
     ((modm, xK_e), viewEmptyWorkspace),
     ((modm, xK_Tab), toggleWS),
     -- scratchpads
-    ((modm, xK_section), namedScratchpadAction scratchpads "terminal"),
+    ((modm, corner1), namedScratchpadAction scratchpads "terminal"),
+    ((modm, corner2), namedScratchpadAction scratchpads "terminal"),
     ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
   ]
     -- Reordering monitors
