@@ -14,8 +14,10 @@ import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
+import XMonad.Layout.IndependentScreens
 import XMonad.Layout.Magnifier
 import XMonad.Layout.Renamed
+import XMonad.Layout.Spacing
 import XMonad.Layout.ThreeColumns
 import XMonad.Prelude
 import XMonad.StackSet as W
@@ -32,7 +34,7 @@ corner1 = 0xa7
 corner2 = 0x60
 
 myWorkspaces :: [String]
-myWorkspaces = ["1", "2", "3", "4", "5", "6"] -- keep at an even number < 9
+myWorkspaces = ["a", "b", "c"] -- keep at an even number < 9
 
 myTerminal :: String
 myTerminal = "st"
@@ -49,7 +51,7 @@ myConfig =
   def
     { modMask = modm,
       terminal = myTerminal,
-      layoutHook = myLayout,
+      layoutHook = spacingWithEdge 6 myLayout,
       handleEventHook = myHandleEventHook,
       manageHook = myManageHook <+> manageHook def,
       focusedBorderColor = myLight,
@@ -92,6 +94,9 @@ myKeys =
     ((0, 0x1008FF16), spawn "playerctl previous"), -- increase music volume
     ((0, 0x1008FF17), spawn "playerctl next"), -- increase music volume
 
+    -- utilities
+    ((modm, 0xff7f), spawn "shutdown now"), -- shutdown
+
     -- windows
     ((modm .|. controlMask, xK_q), killAll),
     ((modm .|. shiftMask, xK_s), sinkAll),
@@ -133,7 +138,7 @@ myXmobarPP =
   def
     { ppSep = white " • ",
       ppTitleSanitize = xmobarStrip,
-      ppCurrent = invert3D myLight myDark myMed 2,
+      ppCurrent = myCurrent,
       ppHidden = my3D . white . xmobarBorder "Top" "#FFF" 1,
       ppVisible = myPPVisible,
       ppHiddenNoWindows = myPPNoWindows,
@@ -150,6 +155,7 @@ myXmobarPP =
     cond ?-> ppr = (asks cond >>= guard) *> asks (ppr . wsPP)
 
     my3D = create3D myLight myDark myMed 2
+    myCurrent = invert3D myLight myDark myMed 2
     myPPVisible = const $ my3D switcheroo
     myPPNoWindows = my3D . lowWhite
     formatFocused = my3D . pad . matchIcon . ppWindow
