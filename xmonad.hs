@@ -34,7 +34,7 @@ corner1 = 0xa7
 corner2 = 0x60
 
 myWorkspaces :: [String]
-myWorkspaces = ["a", "b", "c"] -- keep at an even number < 9
+myWorkspaces = ["<fn=1>\x31</fn>", "<fn=1>\x32</fn>", "<fn=1>\x33</fn>", "<fn=1>\x34</fn>", "<fn=1>\x35</fn>", "<fn=1>\x36</fn>", "<fn=1>\x37</fn>", "<fn=1>\x38</fn>", "<fn=1>\x39</fn>"]
 
 myTerminal :: String
 myTerminal = "st"
@@ -110,7 +110,7 @@ myKeys =
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
-    ((modm, xK_Tab), toggleWS),
+    ((modm, xK_Tab), toggleWS' ["NSP"]),
     -- scratchpads
     ((modm, corner1), namedScratchpadAction scratchpads "terminal"),
     ((modm, corner2), namedScratchpadAction scratchpads "terminal"),
@@ -139,30 +139,34 @@ myXmobarPP =
     { ppSep = white " • ",
       ppTitleSanitize = xmobarStrip,
       ppCurrent = myCurrent,
-      ppHidden = my3D . white . xmobarBorder "Top" "#FFF" 1,
+      ppHidden = pad . pad . white, -- my3D . white . xmobarBorder "Top" "#FFF" 1,
       ppVisible = myPPVisible,
       ppHiddenNoWindows = myPPNoWindows,
-      ppVisibleNoWindows = Just (const $ myPPNoWindows switcheroo),
+      ppVisibleNoWindows = Just myPPVisible,
       ppUrgent = red . wrap (yellow "!") (yellow "!"),
-      ppOrder = \[ws, l, _, wins] -> [ws, l, wins],
+      ppOrder = \[ws, l, _, wins] -> [ws], -- [ws, l, wins],
       ppExtras = [logTitles formatFocused formatUnfocused],
-      ppWsSep = "",
+      ppWsSep = "<fc=#bbbbbb><fn=1>\xf715</fn></fc>",
       ppPrinters = isCurrentNoWindows ?-> const ppCurrentNoWindows
     }
   where
     ppCurrentNoWindows :: WorkspaceId -> String
-    ppCurrentNoWindows = invert3D myLight myDark myMed 2 . lowWhite
+    ppCurrentNoWindows = pad . renderIcon "<fn=1>\xf063</fn>" lowWhite -- invert3D myLight myDark myMed 2 . lowWhite
     cond ?-> ppr = (asks cond >>= guard) *> asks (ppr . wsPP)
 
+    renderIcon s c = const (pad $ c s)
+    circle = renderIcon "<fn=2>\xf111</fn>"
+    circleCheck = renderIcon "<fn=3>\xf058</fn>"
+    circleDot = renderIcon "<fn=1>\xf192</fn>"
     my3D = create3D myLight myDark myMed 2
-    myCurrent = invert3D myLight myDark myMed 2
-    myPPVisible = const $ my3D switcheroo
-    myPPNoWindows = my3D . lowWhite
+    myCurrent = pad . renderIcon "<fn=1>\xf063</fn>" white -- invert3D myLight myDark myMed 2
+    myPPVisible = pad . pad . const switcheroo -- const $ my3D switcheroo
+    myPPNoWindows = pad . pad . lowWhite -- my3D . lowWhite
     formatFocused = my3D . pad . matchIcon . ppWindow
     formatUnfocused = const (my3D "")
-    create3D lc dc mc w = xmobarBorder "Right" dc w . xmobarBorder "Bottom" dc (w -1) . xmobarBorder "Top" lc w . xmobarBorder "Left" lc w . xmobarColor "white" mc . (' ' :) . (++ " ")
-    invert3D lc dc mc w = xmobarBorder "Right" lc w . xmobarBorder "Top" dc w . xmobarBorder "Left" dc w . xmobarColor "white" mc . (' ' :) . (++ " ")
-    switcheroo = "<fn=1>\61561</fn>"
+    create3D lc dc mc w = xmobarBorder "Right" dc w . xmobarBorder "Bottom" dc (w -1) . xmobarBorder "Top" lc w . xmobarBorder "Left" lc w . xmobarColor "white" mc . pad
+    invert3D lc dc mc w = xmobarBorder "Right" lc w . xmobarBorder "Top" dc w . xmobarBorder "Left" dc w . xmobarColor "white" mc . pad
+    switcheroo = "<fn=1>\xf021</fn>"
 
     ppWindow :: String -> String
     ppWindow = \w -> if null w then "untitled" else w

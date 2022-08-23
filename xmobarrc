@@ -1,22 +1,30 @@
 Config { overrideRedirect = True
-       , font     = "xft:Bitstream Vera Sans Mono:size=14:antialias=true"
-       , additionalFonts = ["xft:Font Awesome 6 Free Solid:style=solid:size=12", "xft:Symbols Nerd Font:size=16"]
+       , font     = "xft:Font Awesome:size=13:antialias=true"
+       , additionalFonts = [
+            "xft:Font Awesome 6 Free Solid:style=regular:size=10"
+          , "xft:Font Awesome 6 Free Regular:style=regular:size=10"
+          , "xft:Symbols Nerd Font:size=14"
+          , "xft:Symbols Nerd Font:size=18"
+          , "xft:Font Awesome 6 Free:style=solid:size=11"
+        ]
        , bgColor  = "#333" -- "#2e585e"
-       , alpha    = 100
+       , alpha    = 0
        , fgColor  = "#f8f8f2"
-       , position = TopW L 95
+       , position = TopW L 90
        , commands = [  Run Cpu
                         [ "-L", "3"
                         , "-H", "50"
                         , "--high"  , "red"
                         , "--normal", "green"
+                        , "-t"
+                        , "<fc=#c41449><fn=4>\xf85a</fn></fc> <total> <fn=5>\x25</fn>  <fc=#bbbbbb><fn=1>\xf715</fn></fc> "
                         ] 10
-                    , Run Alsa "default" "Master" [] 
-                    , Run Memory ["--template", "Mem: <usedratio>%"] 10
-                    , Run Date "%a %Y-%m-%d <fc=#c41449>%H:%M</fc>" "date" 10
+                    , Run Alsa "default" "Master" ["-t", "<fc=#c41449><fn=1>\xf001</fn></fc>  <volume> <fn=5>\x25</fn>  <status> <fc=#bbbbbb><fn=1>\xf715</fn></fc> "] 
+                    , Run Memory ["--template", " <fc=#c41449><fn=1>\xf7c2</fn></fc> <usedratio> <fn=5>\x25</fn>  "] 10
+                    , Run Date "<fn=0>%a %Y-%m-%d <fc=#c41449>%H:%M</fc></fn>" "date" 10
                     , Run UnsafeXMonadLog
                     ]
        , sepChar  = "%"
        , alignSep = "}{"
-       , template = "%UnsafeXMonadLog% } %date% { %cpu% | %alsa:default:Master% | %memory% |"
+       , template = "%UnsafeXMonadLog% } %date% { %cpu% %alsa:default:Master% %memory% "
        }
