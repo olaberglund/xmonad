@@ -26,5 +26,5 @@ Config { overrideRedirect = True
                     ]
        , sepChar  = "%"
        , alignSep = "}{"
-       , template = "%UnsafeXMonadLog% } %date% { %cpu% %alsa:default:Master% %memory% "
+       , template = "%UnsafeXMonadLog% }                                   %date% { %cpu% %alsa:default:Master% %memory% "
        }

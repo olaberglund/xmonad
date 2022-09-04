@@ -7,14 +7,16 @@ import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
 import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Actions.OnScreen
+import XMonad.Actions.SpawnOn
 import XMonad.Actions.WithAll
 import XMonad.Actions.WorkspaceNames
+import XMonad.Config.Desktop
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
-import XMonad.Layout.IndependentScreens
 import XMonad.Layout.Magnifier
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
@@ -25,6 +27,7 @@ import XMonad.Util.ClickableWorkspaces
 import XMonad.Util.EZConfig (additionalKeys)
 import XMonad.Util.Loggers
 import XMonad.Util.NamedScratchpad
+import XMonad.Util.SpawnOnce (spawnOnce)
 
 modm :: KeyMask
 modm = mod4Mask
@@ -34,7 +37,17 @@ corner1 = 0xa7
 corner2 = 0x60
 
 myWorkspaces :: [String]
-myWorkspaces = ["<fn=1>\x31</fn>", "<fn=1>\x32</fn>", "<fn=1>\x33</fn>", "<fn=1>\x34</fn>", "<fn=1>\x35</fn>", "<fn=1>\x36</fn>", "<fn=1>\x37</fn>", "<fn=1>\x38</fn>", "<fn=1>\x39</fn>"]
+myWorkspaces =
+  [ "<fn=1>\x31</fn>",
+    "<fn=1>\x32</fn>",
+    "<fn=1>\x33</fn>",
+    "<fn=1>\x34</fn>",
+    "<fn=1>\x35</fn>",
+    "<fn=1>\x36</fn>" ++ ": <fn=1>src</fn>",
+    "<fn=1>\x37</fn>" ++ ": <fn=1>docs</fn>",
+    "<fn=1>\x38</fn>" ++ ": <fn=1>slack</fn>",
+    "<fn=1>\x39</fn>" ++ ": <fn=1>server</fn>"
+  ]
 
 myTerminal :: String
 myTerminal = "st"
@@ -101,12 +114,15 @@ myKeys =
     ((modm .|. controlMask, xK_q), killAll),
     ((modm .|. shiftMask, xK_s), sinkAll),
     -- redshift
-    ((modm, xK_KP_Insert), spawn "rs 0"),
-    ((modm, xK_KP_End), spawn "rs 1"),
-    ((modm, xK_KP_Down), spawn "rs 2"),
-    ((modm, xK_KP_Next), spawn "rs 3"),
-    ((modm, xK_KP_Left), spawn "rs 4"),
-    ((modm, xK_KP_Begin), spawn "rs 5"),
+    ((modm .|. controlMask, xK_KP_Insert), spawn "rs 0"),
+    ((modm .|. controlMask, xK_KP_End), spawn "rs 1"),
+    ((modm .|. controlMask, xK_KP_Down), spawn "rs 2"),
+    ((modm .|. controlMask, xK_KP_Next), spawn "rs 3"),
+    ((modm .|. controlMask, xK_KP_Left), spawn "rs 4"),
+    ((modm .|. controlMask, xK_KP_Begin), spawn "rs 5"),
+    -- screen layout
+    ((modm .|. mod1Mask, xK_KP_End), spawn "~/.screenlayout/fix.sh"),
+    ((modm .|. mod1Mask, xK_KP_Down), spawn "~/.screenlayout/horiz-horiz.desktop.sh"),
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
@@ -120,6 +136,10 @@ myKeys =
     ++ [ ((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f)) -- Replace 'mod1Mask' with your mod key of choice.
          | (key, sc) <- zip [xK_comma, xK_period] [1, 0], -- was [0..] *** change to match your screen order ***
            (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
+       ]
+    ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
+         | (i, k) <- zip myWorkspaces [xK_KP_End, xK_KP_Down, xK_KP_Next, xK_KP_Left, xK_KP_Begin, xK_KP_Right, xK_KP_Home, xK_KP_Up, xK_KP_Prior],
+           (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]
        ]
   where
     recomp = spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi"
