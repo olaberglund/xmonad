@@ -15,6 +15,7 @@ import XMonad.Config.Desktop
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Layout.Magnifier
@@ -65,6 +66,7 @@ myConfig =
     { modMask = modm,
       terminal = myTerminal,
       layoutHook = spacingWithEdge 6 myLayout,
+      startupHook = setWMName "LG3D",
       handleEventHook = myHandleEventHook,
       manageHook = myManageHook <+> manageHook def,
       focusedBorderColor = myLight,
