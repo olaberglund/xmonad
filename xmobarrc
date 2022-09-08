@@ -5,7 +5,8 @@ Config { overrideRedirect = True
           , "xft:Font Awesome 6 Free Regular:style=regular:size=10"
           , "xft:Symbols Nerd Font:size=14"
           , "xft:Symbols Nerd Font:size=18"
-          , "xft:Font Awesome 6 Free:style=solid:size=11"
+          ,  "xft:Font Awesome 6 Free Solid:style=regular:size=11"
+          ,  "xft:Font Awesome 6 Free Solid:style=regular:size=9"
         ]
        , bgColor  = "#333" -- "#2e585e"
        , alpha    = 0

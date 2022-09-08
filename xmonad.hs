@@ -161,7 +161,7 @@ myXmobarPP =
     { ppSep = white " • ",
       ppTitleSanitize = xmobarStrip,
       ppCurrent = myCurrent,
-      ppHidden = pad . pad . white, -- my3D . white . xmobarBorder "Top" "#FFF" 1,
+      ppHidden = pad . pad . pad . white, -- my3D . white . xmobarBorder "Top" "#FFF" 1,
       ppVisible = myPPVisible,
       ppHiddenNoWindows = myPPNoWindows,
       ppVisibleNoWindows = Just myPPVisible,
@@ -181,9 +181,9 @@ myXmobarPP =
     circleCheck = renderIcon "<fn=3>\xf058</fn>"
     circleDot = renderIcon "<fn=1>\xf192</fn>"
     my3D = create3D myLight myDark myMed 2
-    myCurrent = wrap "<fn=1><fc=#c41449>\xf053</fc></fn> " " <fn=1><fc=#c41449>\xf054</fc></fn>"
+    myCurrent = wrap "<fn=5><fc=#c41449>\xf053</fc></fn> " " <fn=5><fc=#c41449>\xf054</fc></fn>"
     myPPVisible = pad . pad . const switcheroo -- const $ my3D switcheroo
-    myPPNoWindows = pad . pad . lowWhite -- my3D . lowWhite
+    myPPNoWindows = wrap "  " "  " . pad . lowWhite -- my3D . lowWhite
     formatFocused = my3D . pad . matchIcon . ppWindow
     formatUnfocused = const (my3D "")
     create3D lc dc mc w = xmobarBorder "Right" dc w . xmobarBorder "Bottom" dc (w -1) . xmobarBorder "Top" lc w . xmobarBorder "Left" lc w . xmobarColor "white" mc . pad
