@@ -28,7 +28,7 @@ modm :: KeyMask
 modm = mod4Mask
 
 myWorkspaces :: [String]
-myWorkspaces = ["1", "2", "3", "4", "5", "6"] -- keep at an even number < 9
+myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] -- keep at an even number < 9
 
 myTerminal :: String
 myTerminal = "st"
@@ -81,6 +81,10 @@ myKeys =
     ((modm .|. shiftMask, xK_b), spawn "blueman-manager"),
     ((modm, xK_n), spawn "networkmanager_dmenu"), -- %! Rotate through the available layout algorithms
 
+
+    -- toipe
+    ((modm .|. shiftMask, xK_o), spawn "st -e sh -c 'toipe'"), -- %! Rotate through the available layout algorithms
+
     -- music
     ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 5"), -- decrease master volume
     ((0, 0x1008FF12), spawn "pamixer -t"), -- mute music; 0 to tap mult. media key w/o super
@@ -110,8 +114,10 @@ myKeys =
     ((modm, xK_e), viewEmptyWorkspace),
     ((modm, xK_Tab), toggleWS),
 
+    ((modm .|. shiftMask, xK_t), spawn "setxkbmap us"),
+
     -- scratchpads
-    ((modm, xK_section), namedScratchpadAction scratchpads "terminal"),
+    ((modm, xK_t), namedScratchpadAction scratchpads "terminal"),
     ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
   ]
     -- Reordering monitors
