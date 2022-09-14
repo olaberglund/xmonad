@@ -3,11 +3,13 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 import Data.Functor
+import qualified Data.Map.Strict as M
 import Data.Semigroup
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
 import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Actions.TopicSpace
 import XMonad.Actions.WithAll
 import XMonad.Actions.WorkspaceNames
 import XMonad.Hooks.DynamicLog
@@ -27,6 +29,14 @@ import XMonad.Util.EZConfig (additionalKeys)
 import XMonad.Util.Loggers
 import XMonad.Util.NamedScratchpad
 
+-- default constant declarations
+
+myTerminal = "st"
+
+myEditor = "lvim"
+
+spotify = "spotify"
+
 modm :: KeyMask
 modm = mod4Mask
 
@@ -34,24 +44,48 @@ corner1 = 0xa7
 
 corner2 = 0x60
 
-myWorkspaces :: [String]
-myWorkspaces =
-  [ "<fn=1>\x31</fn>",
-    "<fn=1>\x32</fn>",
-    "<fn=1>\x33</fn>",
-    "<fn=1>\x34</fn>",
-    "<fn=1>\x35</fn>",
-    "<fn=1>\x36</fn>",
-    "<fn=1>\x37</fn>",
-    "<fn=1>\x38</fn>",
-    "<fn=1>\x39</fn>"
+-- myWorkspaces :: [String]
+-- myWorkspaces =
+--   [ "<fn=1>\x31</fn>",
+--     "<fn=1>\x32</fn>",
+--     "<fn=1>\x33</fn>",
+--     "<fn=1>\x34</fn>",
+--     "<fn=1>\x35</fn>",
+--     "<fn=1>\x36</fn>",
+--     "<fn=1>\x37</fn>",
+--     "<fn=1>\x38</fn>",
+--     "<fn=1>\x39</fn>"
+--   ]
+
+awesomeWS :: String -> String -> String
+awesomeWS s1 s2 = wrap "<fn=1>" "</fn>" s1 ++ wrap "<fn=1>" "</fn>" s2
+
+myTopicConfig :: TopicConfig
+myTopicConfig =
+  def
+    { topicDirs = tiDirs topicItems,
+      topicActions = tiActions topicItems,
+      defaultTopicAction = const (pure ()), -- by default, do nothing
+      defaultTopic = "1:WEB" -- fallback
+    }
+
+topicItems :: [TopicItem]
+topicItems =
+  [ inHome (awesomeWS "\x31" "web") (spawn "brave"),
+    only (awesomeWS "\x32" ""),
+    only (awesomeWS "\x33" "xmonad"),
+    TI (awesomeWS "\x34" "uni") "lth" spawnShell,
+    inHome (awesomeWS "\x35" "com") (spawn "slack"),
+    TI (awesomeWS "\x36" "memo") "Work/weknowit/Sweden_Memo/Svenska_Memo_Demo" spawnMemo
+    -- TI "dts" ("<fn=1>\x31</fn>" ++ "<fn=1>: web</fn>") spawnShell,
+    -- TI "xm-con" ("<fn=1>\x31</fn>" ++ "<fn=1>: web</fn>") (spawnShell *> spawnShellIn "hs/xm")
   ]
+  where
+    only :: Topic -> TopicItem
+    only n = noAction n "./"
 
-myTerminal :: String
-myTerminal = "st"
-
-spotify :: String
-spotify = "spotify"
+    spawnMemo :: X ()
+    spawnMemo = spawnShell
 
 main :: IO ()
 main = xmonad . ewmhFullscreen . ewmh . withEasySB (statusBarProp "xmobar" (clickablePP myXmobarPP >>= workspaceNamesPP <&> filterOutWsPP [scratchpadWorkspaceTag])) toggleStrutsKey $ myConfig
@@ -68,7 +102,7 @@ myConfig =
       manageHook = myManageHook <+> manageHook def,
       focusedBorderColor = myLight,
       normalBorderColor = myDark,
-      XMonad.workspaces = myWorkspaces
+      XMonad.workspaces = topicNames topicItems
     }
     `additionalKeys` myKeys
 
@@ -131,18 +165,26 @@ myKeys =
     ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
   ]
     -- Reordering monitors
-    ++ [ ((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f)) -- Replace 'mod1Mask' with your mod key of choice.
-         | (key, sc) <- zip [xK_comma, xK_period] [1, 0], -- was [0..] *** change to match your screen order ***
-           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-       ]
-    ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
-         | (i, k) <- zip myWorkspaces [xK_KP_End, xK_KP_Down, xK_KP_Next, xK_KP_Left, xK_KP_Begin, xK_KP_Right, xK_KP_Home, xK_KP_Up, xK_KP_Prior],
-           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-       ]
-    ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
-         | (i, k) <- zip myWorkspaces [xK_1 ..],
-           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-       ]
+    -- ++ [ ((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f)) -- Replace 'mod1Mask' with your mod key of choice.
+    --      | (key, sc) <- zip [xK_comma, xK_period] [1, 0], -- was [0..] *** change to match your screen order ***
+    --        (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
+    --    ]
+    -- ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
+    --      | (i, k) <- zip myWorkspaces [xK_KP_End, xK_KP_Down, xK_KP_Next, xK_KP_Left, xK_KP_Begin, xK_KP_Right, xK_KP_Home, xK_KP_Up, xK_KP_Prior],
+    --        (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
+    --    ]
+    -- ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
+    --      | (i, k) <- zip myWorkspaces [xK_1 ..],
+    --        (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
+    --    ]
+    ++
+    -- The following does two things:
+    --   1. Switch topics (no modifier)
+    --   2. Move focused window to topic N (shift modifier)
+    [ ((modm .|. m, k), f i)
+      | (i, k) <- zip (topicNames topicItems) [xK_1 .. xK_9],
+        (f, m) <- [(goto, 0), (windows . W.shift, shiftMask)]
+    ]
   where
     recomp = spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi"
 
@@ -213,3 +255,21 @@ scratchpadFloat = customFloating $ W.RationalRect l t w h
     w = 0.6
     t = 0.5 - h / 2
     l = 0.5 - w / 2
+
+spawnShell :: X ()
+spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
+
+spawnEditor :: X ()
+spawnEditor = spawnShellCommand myEditor
+
+spawnShellCommand :: String -> X ()
+spawnShellCommand s = currentTopicDir myTopicConfig >>= spawnShellInWithCommand s
+
+spawnShellIn :: Dir -> X ()
+spawnShellIn dir = spawn $ myTerminal ++ " --working-directory " ++ dir
+
+spawnShellInWithCommand :: Dir -> String -> X ()
+spawnShellInWithCommand dir comm = spawn $ myTerminal ++ " --working-directory " ++ dir ++ " -e " ++ comm
+
+goto :: Topic -> X ()
+goto = switchTopic myTopicConfig
