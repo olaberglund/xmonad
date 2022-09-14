@@ -1,11 +1,11 @@
 Config { overrideRedirect = True
-       , font     = "xft:Font Awesome:size=13:antialias=true"
+       , font     = "xft:Font Awesome:size=14:antialias=true"
        , additionalFonts = [
             "xft:Font Awesome 6 Free Solid:style=regular:size=10"
           , "xft:Font Awesome 6 Free Regular:style=regular:size=10"
           , "xft:Symbols Nerd Font:size=14"
           , "xft:Symbols Nerd Font:size=18"
-          ,  "xft:Font Awesome 6 Free Solid:style=regular:size=11"
+          ,  "xft:Font Awesome 6 Free Solid:style=regular:size=10"
           ,  "xft:Font Awesome 6 Free Solid:style=regular:size=9"
         ]
        , bgColor  = "#333" -- "#2e585e"
