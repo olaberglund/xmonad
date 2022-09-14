@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 import Data.Functor
 import Data.Semigroup
@@ -7,11 +8,8 @@ import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
 import XMonad.Actions.FindEmptyWorkspace
-import XMonad.Actions.OnScreen
-import XMonad.Actions.SpawnOn
 import XMonad.Actions.WithAll
 import XMonad.Actions.WorkspaceNames
-import XMonad.Config.Desktop
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
@@ -28,7 +26,6 @@ import XMonad.Util.ClickableWorkspaces
 import XMonad.Util.EZConfig (additionalKeys)
 import XMonad.Util.Loggers
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.SpawnOnce (spawnOnce)
 
 modm :: KeyMask
 modm = mod4Mask
@@ -44,10 +41,10 @@ myWorkspaces =
     "<fn=1>\x33</fn>",
     "<fn=1>\x34</fn>",
     "<fn=1>\x35</fn>",
-    "<fn=1>\x36</fn>" ++ ": <fn=1>src</fn>",
-    "<fn=1>\x37</fn>" ++ ": <fn=1>docs</fn>",
-    "<fn=1>\x38</fn>" ++ ": <fn=1>slack</fn>",
-    "<fn=1>\x39</fn>" ++ ": <fn=1>server</fn>"
+    "<fn=1>\x36</fn>",
+    "<fn=1>\x37</fn>",
+    "<fn=1>\x38</fn>",
+    "<fn=1>\x39</fn>"
   ]
 
 myTerminal :: String
@@ -95,9 +92,8 @@ myKeys =
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
     ((modm, xK_n), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
 
-    -- key layout
-    ((modm, xK_t), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us"), -- decrease master volume
-
+    -- toggle key layout
+    ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us"),
     -- specific programs
     ((modm, xK_space), spawn "brave"),
     ((modm, xK_f), spawn "flameshot gui"),
@@ -141,7 +137,11 @@ myKeys =
        ]
     ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
          | (i, k) <- zip myWorkspaces [xK_KP_End, xK_KP_Down, xK_KP_Next, xK_KP_Left, xK_KP_Begin, xK_KP_Right, xK_KP_Home, xK_KP_Up, xK_KP_Prior],
-           (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]
+           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
+       ]
+    ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
+         | (i, k) <- zip myWorkspaces [xK_1 ..],
+           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
        ]
   where
     recomp = spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi"
@@ -164,10 +164,10 @@ myXmobarPP =
       ppHidden = pad . pad . pad . white, -- my3D . white . xmobarBorder "Top" "#FFF" 1,
       ppVisible = myPPVisible,
       ppHiddenNoWindows = myPPNoWindows,
-      ppVisibleNoWindows = Just myPPVisible,
+      ppVisibleNoWindows = Just (lowWhite . myPPVisible),
       ppUrgent = red . wrap (yellow "!") (yellow "!"),
-      ppOrder = \[ws, l, _, wins] -> [ws], -- [ws, l, wins],
-      ppExtras = [logTitles formatFocused formatUnfocused],
+      ppOrder = \[ws, _, _, _] -> [ws], -- [ws, l, wins],
+      ppExtras = [logTitles id id],
       ppWsSep = "<fc=#bbbbbb><fn=1>\xf715</fn></fc>",
       ppPrinters = isCurrentNoWindows ?-> const ppCurrentNoWindows
     }
@@ -176,52 +176,14 @@ myXmobarPP =
     ppCurrentNoWindows = myCurrent . lowWhite
     cond ?-> ppr = (asks cond >>= guard) *> asks (ppr . wsPP)
 
-    renderIcon s c = const (pad $ c s)
-    circle = renderIcon "<fn=2>\xf111</fn>"
-    circleCheck = renderIcon "<fn=3>\xf058</fn>"
-    circleDot = renderIcon "<fn=1>\xf192</fn>"
-    my3D = create3D myLight myDark myMed 2
     myCurrent = wrap "<fn=5><fc=#c41449>\xf053</fc></fn> " " <fn=5><fc=#c41449>\xf054</fc></fn>"
-    myPPVisible = pad . pad . const switcheroo -- const $ my3D switcheroo
+    myVisible = wrap "<fn=5><fc=#FFF>\xf053</fc></fn> " " <fn=5><fc=#FFF>\xf054</fc></fn>"
+    myPPVisible = myVisible -- pad . pad . const switcheroo -- const $ my3D switcheroo
     myPPNoWindows = wrap "  " "  " . pad . lowWhite -- my3D . lowWhite
-    formatFocused = my3D . pad . matchIcon . ppWindow
-    formatUnfocused = const (my3D "")
-    create3D lc dc mc w = xmobarBorder "Right" dc w . xmobarBorder "Bottom" dc (w -1) . xmobarBorder "Top" lc w . xmobarBorder "Left" lc w . xmobarColor "white" mc . pad
-    invert3D lc dc mc w = xmobarBorder "Right" lc w . xmobarBorder "Top" dc w . xmobarBorder "Left" dc w . xmobarColor "white" mc . pad
-    switcheroo = "<fn=1>\xf0ec</fn>"
-
-    ppWindow :: String -> String
-    ppWindow = \w -> if null w then "untitled" else w
-
-    matchIcon :: String -> String
-    matchIcon s
-      | "NVIM" `isInfixOf` s = "<fn=2>\xe7c5</fn>  " ++ xmobarRaw (shorten 20 $ takeWhile (/= '(') s)
-      | "YouTube" `isInfixOf` s = "<fn=2>\xf16a</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Messenger" `isInfixOf` s = "<fn=2>\xf70d</fn>  " ++ s
-      | "Facebook" `isInfixOf` s = "<fn=2>\xf09a</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Stack" `isInfixOf` s = "<fn=2>\xf16c</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Spotify" `isInfixOf` s = "<fn=2>\xf1bc</fn>  " ++ s
-      | "Twitch" `isInfixOf` s = "<fn=2>\xfa42</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "GitHub" `isInfixOf` s = "<fn=2>\xf7a3</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Slack" `isInfixOf` s = "<fn=2>\xf198</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Discord" `isInfixOf` s = "<fn=2>\xfb6e</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Pirate" `isInfixOf` s = "<fn=2>\xfb8a</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Codewars" `isInfixOf` s = "<fn=2>\xe000</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "askell" `isInfixOf` s = "<fn=2>\xe61f</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Wikipedia" `isInfixOf` s = "<fn=2>\xfaab</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Firebase" `isInfixOf` s = "<fn=2>\xf6b7</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Dashboard" `isInfixOf` s = "<fn=2>\xfa6d</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Inbox" `isInfixOf` s = "<fn=2>\xf7aa</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "Brave" `isInfixOf` s = "<fn=2>\xe743</fn>  " ++ xmobarRaw (shorten 20 s)
-      | "st" `isInfixOf` s = "<fn=2>\xf120</fn>  " ++ xmobarRaw "term (" ++ myTerminal ++ ")"
-      | otherwise = s
 
     -- colors
-    blue, lowWhite, magenta, red, white, yellow :: String -> String
-    magenta = xmobarColor "#ff79c6" ""
-    blue = xmobarColor "#bd93f9" ""
+    lowWhite, red, white, yellow :: String -> String
     white = xmobarColor "white" ""
-    djungleYellow = xmobarColor "#d9c731" ""
     yellow = xmobarColor "#f1fa8c" ""
     red = xmobarColor "#ff5555" ""
     lowWhite = xmobarColor "#bbbbbb" ""
@@ -229,8 +191,6 @@ myXmobarPP =
 myDark = "#000"
 
 myLight = "#7d7d7d"
-
-myMed = "#333"
 
 isCurrentNoWindows :: WS -> Bool
 isCurrentNoWindows WS {..} = (W.tag wsWS == W.currentTag wsWindowSet) && isNothing (W.peek wsWindowSet)
@@ -253,9 +213,3 @@ scratchpadFloat = customFloating $ W.RationalRect l t w h
     w = 0.6
     t = 0.5 - h / 2
     l = 0.5 - w / 2
-
--- /* CSV */
--- a7b6a3,0c231e,78a3ab,597268,6a9198,2e4941,525336,2e585e,16393d
-
--- /* Array */
--- ["a7b6a3","0c231e","78a3ab","597268","6a9198","2e4941","525336","2e585e","16393d"]
