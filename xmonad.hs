@@ -7,7 +7,9 @@ import Data.Semigroup
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
+import XMonad.Actions.DynamicProjects
 import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Actions.GridSelect
 import XMonad.Actions.WithAll
 import XMonad.Actions.WorkspaceNames
 import XMonad.Hooks.DynamicLog
@@ -91,7 +93,7 @@ myKeys =
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
     ((modm, xK_n), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
-
+    ((modm, xK_g), goToSelected def),
     -- toggle key layout
     ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us"),
     -- specific programs
