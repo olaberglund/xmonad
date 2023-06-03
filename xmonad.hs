@@ -14,7 +14,7 @@ import XMonad.Actions.WorkspaceNames
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
-import XMonad.Hooks.ManageDocks (avoidStruts, docks)
+import XMonad.Hooks.ManageDocks (ToggleStruts (ToggleStruts), avoidStruts, docks)
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
@@ -62,7 +62,7 @@ myConfig =
   def
     { modMask = modm,
       terminal = myTerminal,
-      layoutHook = smartSpacing 6 myLayout,
+      layoutHook = avoidStruts $ smartSpacing 6 myLayout,
       startupHook = setWMName "LG3D",
       handleEventHook = myHandleEventHook,
       manageHook = myManageHook <+> manageHook def,
@@ -94,7 +94,7 @@ myKeys =
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
     ((modm .|. shiftMask, xK_f), sendMessage (Toggle "Full")), -- %! Rotate through the available layout algorithms
-    ((modm, xK_b), sequence_ [spawn xmobarToggleCommand, toggleWindowSpacingEnabled]), -- %! Rotate through the available layout algorithms
+    ((modm, xK_b), sequence_ [spawn xmobarToggleCommand, sendMessage ToggleStruts, toggleWindowSpacingEnabled]), -- %! Rotate through the available layout algorithms
     ((modm, xK_g), goToSelected def),
     -- toggle key layout
     ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us; xmodmap /home/ola/.Xmodmap"),
@@ -172,7 +172,7 @@ myKeys =
   where
     recomp = spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi"
 
-myLayout = avoidStruts $ toggleLayouts (noBorders Full) tiled
+myLayout = toggleLayouts (noBorders Full) tiled
   where
     tiled = renamed [Replace "[]="] $ Tall nmaster delta ratio
     nmaster = 1
