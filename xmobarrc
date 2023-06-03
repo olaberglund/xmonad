@@ -2,7 +2,7 @@ Config { overrideRedirect = True
        , font     = "xft:Font Awesome:size=14:antialias=true"
        , additionalFonts = [
             "xft:Font Awesome 6 Free Solid:style=regular:size=10"
-          , "xft:Font Awesome 6 Free Regular:style=regular:size=10"
+          , "xft:Font Awesome 6 Free Regular:style=regular:size=20"
           , "xft:Symbols Nerd Font:size=14"
           , "xft:Symbols Nerd Font:size=18"
           ,  "xft:Font Awesome 6 Free Solid:style=regular:size=10"
@@ -18,14 +18,14 @@ Config { overrideRedirect = True
                         , "--high"  , "red"
                         , "--normal", "green"
                         , "-t"
-                        , "<fc=#c41449><fn=4>\xf85a</fn></fc> <total> <fn=5>\x25</fn>  <fc=#bbbbbb><fn=1>\xf715</fn></fc> "
+                        , "<fc=#c41449><fn=4>\xf2db</fn></fc> <total> <fn=5>\x25</fn> "
                         ] 10
-                    , Run Alsa "default" "Master" ["-t", "<fc=#c41449><fn=1>\xf001</fn></fc>  <volume> <fn=5>\x25</fn>  <status> <fc=#bbbbbb><fn=1>\xf715</fn></fc> "] 
-                    , Run Memory ["--template", " <fc=#c41449><fn=1>\xf7c2</fn></fc> <usedratio> <fn=5>\x25</fn>  "] 10
+                    , Run Alsa "default" "Master" ["-t", "<fc=#c41449><fn=1>\xf028</fn></fc>  <volume> <fn=5>\x25</fn>  <status> "] 
+                    , Run Memory ["--template", " <fc=#c41449><fn=1>\xf1c0</fn></fc> <usedratio> <fn=5>\x25</fn>  "] 10
                     , Run Date "<fn=0>%a %Y-%m-%d <fc=#c41449>%H:%M</fc></fn>" "date" 10
                     , Run UnsafeXMonadLog
                     ]
        , sepChar  = "%"
        , alignSep = "}{"
-       , template = "%UnsafeXMonadLog% }                                   %date% { %cpu% %alsa:default:Master% %memory% "
+       , template = "%UnsafeXMonadLog% }                                   %date% {%cpu% %alsa:default:Master% %memory% "
        }

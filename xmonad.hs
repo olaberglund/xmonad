@@ -7,7 +7,6 @@ import Data.Semigroup
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.DwmPromote
-import XMonad.Actions.DynamicProjects
 import XMonad.Actions.FindEmptyWorkspace
 import XMonad.Actions.GridSelect
 import XMonad.Actions.WithAll
@@ -15,13 +14,14 @@ import XMonad.Actions.WorkspaceNames
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.ManageDocks (avoidStruts, docks)
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
-import XMonad.Layout.Magnifier
+import XMonad.Layout.NoBorders (noBorders)
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
-import XMonad.Layout.ThreeColumns
+import XMonad.Layout.ToggleLayouts (ToggleLayout (Toggle), toggleLayouts)
 import XMonad.Prelude
 import XMonad.StackSet as W
 import XMonad.Util.ClickableWorkspaces
@@ -56,15 +56,13 @@ spotify :: String
 spotify = "spotify"
 
 main :: IO ()
-main = xmonad . ewmhFullscreen . ewmh . withEasySB (statusBarProp "xmobar" (clickablePP myXmobarPP >>= workspaceNamesPP <&> filterOutWsPP [scratchpadWorkspaceTag])) toggleStrutsKey $ myConfig
-  where
-    toggleStrutsKey XConfig {modMask = m} = (m, xK_b)
+main = xmonad . ewmhFullscreen . ewmh . docks . withSB (statusBarProp "xmobar" (clickablePP myXmobarPP >>= workspaceNamesPP <&> filterOutWsPP [scratchpadWorkspaceTag])) $ myConfig
 
 myConfig =
   def
     { modMask = modm,
       terminal = myTerminal,
-      layoutHook = spacingWithEdge 6 myLayout,
+      layoutHook = smartSpacing 6 myLayout,
       startupHook = setWMName "LG3D",
       handleEventHook = myHandleEventHook,
       manageHook = myManageHook <+> manageHook def,
@@ -83,6 +81,9 @@ myManageHook =
 myHandleEventHook :: Event -> X All
 myHandleEventHook = dynamicPropertyChange "WM_NAME" (title =? "Spotify" --> scratchpadFloat)
 
+xmobarToggleCommand :: String
+xmobarToggleCommand = "dbus-send --session --dest=org.Xmobar.Control --type=method_call '/org/Xmobar/Control' org.Xmobar.Control.SendSignal \"string:Toggle 0\""
+
 myKeys :: [((KeyMask, KeySym), X ())]
 myKeys =
   [ ((modm, xK_Return), spawn myTerminal),
@@ -92,24 +93,44 @@ myKeys =
     -- layout
     ((modm, xK_i), sendMessage (IncMasterN 1)), -- %! Increment the number of windows in the master area
     ((modm, xK_d), sendMessage (IncMasterN (-1))), -- %! Deincrement the number of windows in the master area
-    ((modm, xK_n), sendMessage NextLayout), -- %! Rotate through the available layout algorithms
+    ((modm .|. shiftMask, xK_f), sendMessage (Toggle "Full")), -- %! Rotate through the available layout algorithms
+    ((modm, xK_b), sequence_ [spawn xmobarToggleCommand, toggleWindowSpacingEnabled]), -- %! Rotate through the available layout algorithms
     ((modm, xK_g), goToSelected def),
     -- toggle key layout
-    ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us"),
+    ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us; xmodmap /home/ola/.Xmodmap"),
     -- specific programs
-    ((modm, xK_space), spawn "brave"),
+    ((modm, xK_space), spawn "firefox"),
     ((modm, xK_f), spawn "flameshot gui"),
     -- music
-    ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 5"), -- decrease master volume
+    ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 2"), -- decrease master volume
     ((0, 0x1008FF12), spawn "pamixer -t"), -- mute music; 0 to tap mult. media key w/o super
-    ((0, 0x1008FF13), spawn "pamixer --allow-boost -i 5"), -- increase music volume
+    ((0, 0x1008FF13), spawn "pamixer --allow-boost -i 2"), -- increase music volume
     ((0, 0x1008FF14), spawn "playerctl play-pause"), -- increase music volume
     ((0, 0x1008FF16), spawn "playerctl previous"), -- increase music volume
     ((0, 0x1008FF17), spawn "playerctl next"), -- increase music volume
 
     -- utilities
-    ((modm, 0xff7f), spawn "shutdown now"), -- shutdown
-
+    ((modm, 0xff7f), spawn "systemctl suspend"), -- shutdown
+    ((modm .|. controlMask, 0xff7f), spawn "poweroff"), -- shutdown
+    -- ((mod1Mask, xK_a), promptWSGroupAdd def "Name this group: "),
+    -- ((mod1Mask, xK_Tab), promptWSGroupView def "Go to group: "),
+    -- ((mod1Mask, xK_d), promptWSGroupForget def "Forget group: "),
+    -- move cursor without mouse
+    ((controlMask, xK_KP_Left), spawn "xdotool mousemove_relative -- -15 0"),
+    ((controlMask, xK_KP_Begin), spawn "xdotool mousemove_relative 0 15"),
+    ((controlMask, xK_KP_Right), spawn "xdotool mousemove_relative 15 0"),
+    ((controlMask, xK_KP_Up), spawn "xdotool mousemove_relative 0 -15"),
+    ((controlMask, xK_KP_Enter), spawn "xdotool click 1"),
+    ((modm, xK_KP_Left), spawn "xdotool mousemove_relative -- -5 0"),
+    ((modm, xK_KP_Begin), spawn "xdotool mousemove_relative 0 5"),
+    ((modm, xK_KP_Right), spawn "xdotool mousemove_relative 5 0"),
+    ((modm, xK_KP_Up), spawn "xdotool mousemove_relative 0 -5"),
+    ((modm, xK_KP_Enter), spawn "xdotool click 1"),
+    ((modm, xK_x), spawn "xmodmap /home/ola/.Xmodmap && xset r rate 200 70"),
+    -- white screen
+    ((modm .|. shiftMask, xK_w), spawn "sxiv /home/ola/Pictures/white.png"),
+    -- lofi
+    ((modm .|. controlMask, xK_l), spawn "togglelofi"),
     -- windows
     ((modm .|. controlMask, xK_q), killAll),
     ((modm .|. shiftMask, xK_s), sinkAll),
@@ -120,9 +141,14 @@ myKeys =
     ((modm .|. controlMask, xK_KP_Next), spawn "rs 3"),
     ((modm .|. controlMask, xK_KP_Left), spawn "rs 4"),
     ((modm .|. controlMask, xK_KP_Begin), spawn "rs 5"),
+    ((mod1Mask .|. shiftMask, xK_q), spawn "rs 0"),
+    ((mod1Mask, xK_q), spawn "rs 1"),
+    ((mod1Mask, xK_w), spawn "rs 2"),
+    ((mod1Mask, xK_e), spawn "rs 3"),
+    ((mod1Mask, xK_r), spawn "rs 4"),
     -- screen layout
     ((modm .|. mod1Mask, xK_KP_End), spawn "~/.screenlayout/fix.sh"),
-    ((modm .|. mod1Mask, xK_KP_Down), spawn "~/.screenlayout/horiz-horiz.desktop.sh"),
+    ((modm .|. mod1Mask, xK_KP_Down), spawn "~/.screenlayout/horiz-horiz.desktop.sh  ; pkill trayer ; trayer --edge top --align right --monitor 1 --SetDockType true --SetPartialStrut true --expand true --width 10 --transparent true --alpha 255 --tint 0x333333 --height 25 &"),
     -- workspaces
     ((modm, xK_r), renameWorkspace def),
     ((modm, xK_e), viewEmptyWorkspace),
@@ -130,15 +156,13 @@ myKeys =
     -- scratchpads
     ((modm, corner1), namedScratchpadAction scratchpads "terminal"),
     ((modm, corner2), namedScratchpadAction scratchpads "terminal"),
-    ((modm, xK_s), namedScratchpadAction scratchpads "spotify")
+    ((modm, xK_s), namedScratchpadAction scratchpads "spotify"),
+    -- swap
+    ((mod1Mask, xK_s), windows $ W.greedyView =<< W.tag . W.workspace . head . W.visible)
   ]
     -- Reordering monitors
     ++ [ ((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f)) -- Replace 'mod1Mask' with your mod key of choice.
          | (key, sc) <- zip [xK_comma, xK_period] [1, 0], -- was [0..] *** change to match your screen order ***
-           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-       ]
-    ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
-         | (i, k) <- zip myWorkspaces [xK_KP_End, xK_KP_Down, xK_KP_Next, xK_KP_Left, xK_KP_Begin, xK_KP_Right, xK_KP_Home, xK_KP_Up, xK_KP_Prior],
            (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
        ]
     ++ [ ((m .|. modm, k), windows $ f i) -- Replace 'mod1Mask' with your mod key of choice.
@@ -148,11 +172,9 @@ myKeys =
   where
     recomp = spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi"
 
-myLayout = tiled ||| mirrorTiled ||| renamed [Replace "[ ]"] Full ||| threeCol
+myLayout = avoidStruts $ toggleLayouts (noBorders Full) tiled
   where
-    threeCol = renamed [Replace "3x[]"] $ magnifiercz' 1.3 $ ThreeColMid nmaster delta ratio
     tiled = renamed [Replace "[]="] $ Tall nmaster delta ratio
-    mirrorTiled = renamed [Replace "=[]"] $ Mirror tiled
     nmaster = 1
     ratio = 1 / 2
     delta = 3 / 100
@@ -170,7 +192,7 @@ myXmobarPP =
       ppUrgent = red . wrap (yellow "!") (yellow "!"),
       ppOrder = \[ws, _, _, _] -> [ws], -- [ws, l, wins],
       ppExtras = [logTitles id id],
-      ppWsSep = "<fc=#bbbbbb><fn=1>\xf715</fn></fc>",
+      ppWsSep = "<fc=#bbbbbb><fn=1></fn></fc>",
       ppPrinters = isCurrentNoWindows ?-> const ppCurrentNoWindows
     }
   where
