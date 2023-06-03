@@ -25,7 +25,7 @@ import XMonad.Layout.ToggleLayouts (ToggleLayout (Toggle), toggleLayouts)
 import XMonad.Prelude
 import XMonad.StackSet as W
 import XMonad.Util.ClickableWorkspaces
-import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.EZConfig (additionalKeys, additionalMouseBindings)
 import XMonad.Util.Loggers
 import XMonad.Util.NamedScratchpad
 
@@ -71,6 +71,7 @@ myConfig =
       XMonad.workspaces = myWorkspaces
     }
     `additionalKeys` myKeys
+    `additionalMouseBindings` myMouseBindings
 
 myManageHook :: ManageHook
 myManageHook =
@@ -83,6 +84,14 @@ myHandleEventHook = dynamicPropertyChange "WM_NAME" (title =? "Spotify" --> scra
 
 xmobarToggleCommand :: String
 xmobarToggleCommand = "dbus-send --session --dest=org.Xmobar.Control --type=method_call '/org/Xmobar/Control' org.Xmobar.Control.SendSignal \"string:Toggle 0\""
+
+myMouseBindings =
+  [ ((shiftMask, button5), const $ spawn "pamixer --allow-boost -d 2"), -- decrease master volume
+    ((shiftMask, button4), const $ spawn "pamixer --allow-boost -i 2"), -- increase music volume
+    ((shiftMask, button1), const $ spawn "playerctl play-pause"), -- increase music volume
+    ((shiftMask, 8), const $ spawn "playerctl previous"), -- increase music volume
+    ((shiftMask, 9), const $ spawn "playerctl next") -- increase music volume
+  ]
 
 myKeys :: [((KeyMask, KeySym), X ())]
 myKeys =
@@ -103,8 +112,8 @@ myKeys =
     ((modm, xK_f), spawn "flameshot gui"),
     -- music
     ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 2"), -- decrease master volume
-    ((0, 0x1008FF12), spawn "pamixer -t"), -- mute music; 0 to tap mult. media key w/o super
     ((0, 0x1008FF13), spawn "pamixer --allow-boost -i 2"), -- increase music volume
+    ((0, 0x1008FF12), spawn "pamixer -t"), -- mute music; 0 to tap mult. media key w/o super
     ((0, 0x1008FF14), spawn "playerctl play-pause"), -- increase music volume
     ((0, 0x1008FF16), spawn "playerctl previous"), -- increase music volume
     ((0, 0x1008FF17), spawn "playerctl next"), -- increase music volume
@@ -121,11 +130,6 @@ myKeys =
     ((controlMask, xK_KP_Right), spawn "xdotool mousemove_relative 15 0"),
     ((controlMask, xK_KP_Up), spawn "xdotool mousemove_relative 0 -15"),
     ((controlMask, xK_KP_Enter), spawn "xdotool click 1"),
-    ((modm, xK_KP_Left), spawn "xdotool mousemove_relative -- -5 0"),
-    ((modm, xK_KP_Begin), spawn "xdotool mousemove_relative 0 5"),
-    ((modm, xK_KP_Right), spawn "xdotool mousemove_relative 5 0"),
-    ((modm, xK_KP_Up), spawn "xdotool mousemove_relative 0 -5"),
-    ((modm, xK_KP_Enter), spawn "xdotool click 1"),
     ((modm, xK_x), spawn "xmodmap /home/ola/.Xmodmap && xset r rate 200 70"),
     -- white screen
     ((modm .|. shiftMask, xK_w), spawn "sxiv /home/ola/Pictures/white.png"),
