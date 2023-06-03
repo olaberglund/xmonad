@@ -86,11 +86,11 @@ xmobarToggleCommand :: String
 xmobarToggleCommand = "dbus-send --session --dest=org.Xmobar.Control --type=method_call '/org/Xmobar/Control' org.Xmobar.Control.SendSignal \"string:Toggle 0\""
 
 myMouseBindings =
-  [ ((shiftMask, button5), const $ spawn "pamixer --allow-boost -d 2"), -- decrease master volume
-    ((shiftMask, button4), const $ spawn "pamixer --allow-boost -i 2"), -- increase music volume
-    ((shiftMask, button1), const $ spawn "playerctl play-pause"), -- increase music volume
-    ((shiftMask, 8), const $ spawn "playerctl previous"), -- increase music volume
-    ((shiftMask, 9), const $ spawn "playerctl next") -- increase music volume
+  [ ((mod1Mask, button5), const $ spawn "pamixer --allow-boost -d 2"), -- decrease master volume
+    ((mod1Mask, button4), const $ spawn "pamixer --allow-boost -i 2"), -- increase music volume
+    ((mod1Mask, button1), const $ spawn "playerctl play-pause"), -- increase music volume
+    ((mod1Mask, 8), const $ spawn "playerctl previous"), -- increase music volume
+    ((mod1Mask, 9), const $ spawn "playerctl next") -- increase music volume
   ]
 
 myKeys :: [((KeyMask, KeySym), X ())]
