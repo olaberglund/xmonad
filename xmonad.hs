@@ -66,8 +66,8 @@ myConfig =
       startupHook = setWMName "LG3D",
       handleEventHook = myHandleEventHook,
       manageHook = myManageHook <+> manageHook def,
-      focusedBorderColor = myLight,
-      normalBorderColor = myDark,
+      focusedBorderColor = "#7d7d7d",
+      normalBorderColor = "#000",
       XMonad.workspaces = myWorkspaces
     }
     `additionalKeys` myKeys
@@ -186,9 +186,7 @@ myLayout = toggleLayouts (noBorders Full) tiled
 myXmobarPP :: PP
 myXmobarPP =
   def
-    { ppSep = white " • ",
-      ppTitleSanitize = xmobarStrip,
-      ppCurrent = myCurrent,
+    { ppCurrent = myCurrent,
       ppHidden = pad . pad . pad . white, -- my3D . white . xmobarBorder "Top" "#FFF" 1,
       ppVisible = myPPVisible,
       ppHiddenNoWindows = myPPNoWindows,
@@ -216,12 +214,8 @@ myXmobarPP =
     red = xmobarColor "#ff5555" ""
     lowWhite = xmobarColor "#bbbbbb" ""
 
-myDark = "#000"
-
-myLight = "#7d7d7d"
-
-isCurrentNoWindows :: WS -> Bool
-isCurrentNoWindows WS {..} = (W.tag wsWS == W.currentTag wsWindowSet) && isNothing (W.peek wsWindowSet)
+    isCurrentNoWindows :: WS -> Bool
+    isCurrentNoWindows WS {..} = (W.tag wsWS == W.currentTag wsWindowSet) && isNothing (W.peek wsWindowSet)
 
 scratchpads :: [NamedScratchpad]
 scratchpads =
