@@ -12,9 +12,9 @@ import XMonad.Actions.GridSelect
 import XMonad.Actions.WithAll
 import XMonad.Actions.WorkspaceNames
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks (ToggleStruts (ToggleStruts), avoidStruts, docks)
+import XMonad.Hooks.OnPropertyChange
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
@@ -80,7 +80,7 @@ myManageHook =
     ]
 
 myHandleEventHook :: Event -> X All
-myHandleEventHook = dynamicPropertyChange "WM_NAME" (title =? "Spotify" --> scratchpadFloat)
+myHandleEventHook = onXPropertyChange "WM_NAME" (title =? "Spotify" --> scratchpadFloat)
 
 xmobarToggleCommand :: String
 xmobarToggleCommand = "dbus-send --session --dest=org.Xmobar.Control --type=method_call '/org/Xmobar/Control' org.Xmobar.Control.SendSignal \"string:Toggle 0\""
@@ -109,7 +109,7 @@ myKeys =
     ((mod1Mask, xK_space), spawn "(setxkbmap -query | grep -q \"layout:\\s\\+us\") && setxkbmap se || setxkbmap us; xmodmap /home/ola/.Xmodmap"),
     -- specific programs
     ((modm, xK_space), spawn "firefox"),
-    ((modm, xK_f), spawn "flameshot gui"),
+    ((0, xK_Print), spawn "flameshot gui"),
     -- music
     ((0, 0x1008FF11), spawn "pamixer --allow-boost -d 2"), -- decrease master volume
     ((0, 0x1008FF13), spawn "pamixer --allow-boost -i 2"), -- increase music volume
